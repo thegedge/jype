@@ -42,6 +42,16 @@ public class SimpleType implements TypeDescriptor {
 	}
 	
 	@Override
+	public int hashCode() {
+		return clazz.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return clazz.getName();
+	}
+	
+	@Override
 	public boolean isAssignableFrom(TypeDescriptor type) {
 		return (type != null
 		        && type instanceof SimpleType

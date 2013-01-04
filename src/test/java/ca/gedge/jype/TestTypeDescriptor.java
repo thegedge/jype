@@ -40,6 +40,10 @@ public class TestTypeDescriptor {
 		assertTrue(numberType.isAssignableFrom(integerType));
 		assertFalse(integerType.isAssignableFrom(numberType));
 		assertFalse(stringType.isAssignableFrom(numberType));
+		
+		assertEquals("java.lang.String", stringType.toString());
+		assertEquals("java.lang.Number", numberType.toString());
+		assertEquals("java.lang.Integer", integerType.toString());
 	}
 	
 	@Test
@@ -53,6 +57,10 @@ public class TestTypeDescriptor {
 		assertTrue(numberArray.isAssignableFrom(doubleArray));
 		assertFalse(integerArray.isAssignableFrom(numberArray));
 		assertFalse(integerArray.isAssignableFrom(doubleArray));
+		
+		assertEquals("java.lang.Number[]", numberArray.toString());
+		assertEquals("java.lang.Integer[]", integerArray.toString());
+		assertEquals("java.lang.Double[]", doubleArray.toString());
 	}
 	
 	@Test
@@ -62,31 +70,38 @@ public class TestTypeDescriptor {
 		
 		assertTrue(l_n.isAssignableFrom(a_i));
 		assertFalse(a_i.isAssignableFrom(l_n));
+		assertEquals("java.util.List<java.lang.Number>", l_n.toString());
+		assertEquals("java.util.ArrayList<java.lang.Integer>", a_i.toString());
 		
-		final GenericType l_ls = new GenericType(List.class, l_n);
-		final GenericType l_as = new GenericType(List.class, a_i);
-		final GenericType a_ls = new GenericType(ArrayList.class, l_n);
-		final GenericType a_as = new GenericType(ArrayList.class, a_i);
+		final GenericType l_ln = new GenericType(List.class, l_n);
+		final GenericType l_ai = new GenericType(List.class, a_i);
+		final GenericType a_ln = new GenericType(ArrayList.class, l_n);
+		final GenericType a_ai = new GenericType(ArrayList.class, a_i);
 		
-		assertTrue (l_ls.isAssignableFrom(l_ls));
-		assertTrue (l_ls.isAssignableFrom(l_as));
-		assertTrue (l_ls.isAssignableFrom(a_ls));
-		assertTrue (l_ls.isAssignableFrom(a_as));
+		assertTrue (l_ln.isAssignableFrom(l_ln));
+		assertTrue (l_ln.isAssignableFrom(l_ai));
+		assertTrue (l_ln.isAssignableFrom(a_ln));
+		assertTrue (l_ln.isAssignableFrom(a_ai));
 		
-		assertFalse(l_as.isAssignableFrom(l_ls));
-		assertTrue (l_as.isAssignableFrom(l_as));
-		assertFalse(l_as.isAssignableFrom(a_ls));
-		assertTrue (l_as.isAssignableFrom(a_as));
+		assertFalse(l_ai.isAssignableFrom(l_ln));
+		assertTrue (l_ai.isAssignableFrom(l_ai));
+		assertFalse(l_ai.isAssignableFrom(a_ln));
+		assertTrue (l_ai.isAssignableFrom(a_ai));
 		
-		assertFalse(a_ls.isAssignableFrom(l_ls));
-		assertFalse(a_ls.isAssignableFrom(l_as));
-		assertTrue (a_ls.isAssignableFrom(a_ls));
-		assertTrue (a_ls.isAssignableFrom(a_as));
+		assertFalse(a_ln.isAssignableFrom(l_ln));
+		assertFalse(a_ln.isAssignableFrom(l_ai));
+		assertTrue (a_ln.isAssignableFrom(a_ln));
+		assertTrue (a_ln.isAssignableFrom(a_ai));
 		
-		assertFalse(a_as.isAssignableFrom(l_ls));
-		assertFalse(a_as.isAssignableFrom(l_as));
-		assertFalse(a_as.isAssignableFrom(a_ls));
-		assertTrue (a_as.isAssignableFrom(a_as));
+		assertFalse(a_ai.isAssignableFrom(l_ln));
+		assertFalse(a_ai.isAssignableFrom(l_ai));
+		assertFalse(a_ai.isAssignableFrom(a_ln));
+		assertTrue (a_ai.isAssignableFrom(a_ai));
+		
+		assertEquals("java.util.List<java.util.List<java.lang.Number>>", l_ln.toString());
+		assertEquals("java.util.List<java.util.ArrayList<java.lang.Integer>>", l_ai.toString());
+		assertEquals("java.util.ArrayList<java.util.List<java.lang.Number>>", a_ln.toString());
+		assertEquals("java.util.ArrayList<java.util.ArrayList<java.lang.Integer>>", a_ai.toString());
 	}
 	
 	@Test
@@ -100,6 +115,9 @@ public class TestTypeDescriptor {
 		assertTrue(m_n_s.isAssignableFrom(m_i_s));
 		assertFalse(m_i_s.isAssignableFrom(m_n_s));
 		
+		assertEquals("java.util.Map<java.lang.Number,java.lang.String>", m_n_s.toString());
+		assertEquals("java.util.Map<java.lang.Integer,java.lang.String>", m_i_s.toString());
+		
 		final GenericType m_n_ln = new GenericType(Map.class, new SimpleType(Number.class), l_n);
 		final GenericType m_n_ai = new GenericType(Map.class, new SimpleType(Number.class), a_i);
 		final GenericType tm_i_ai = new GenericType(TreeMap.class, new SimpleType(Integer.class), a_i);
@@ -107,6 +125,10 @@ public class TestTypeDescriptor {
 		assertTrue(m_n_ln.isAssignableFrom(m_n_ai));
 		assertTrue(m_n_ln.isAssignableFrom(tm_i_ai));
 		assertTrue(m_n_ai.isAssignableFrom(tm_i_ai));
+		
+		assertEquals("java.util.Map<java.lang.Number,java.util.List<java.lang.Number>>", m_n_ln.toString());
+		assertEquals("java.util.Map<java.lang.Number,java.util.ArrayList<java.lang.Integer>>", m_n_ai.toString());
+		assertEquals("java.util.TreeMap<java.lang.Integer,java.util.ArrayList<java.lang.Integer>>", tm_i_ai.toString());
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

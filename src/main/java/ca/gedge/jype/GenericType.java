@@ -21,6 +21,8 @@
  */
 package ca.gedge.jype;
 
+import java.util.Arrays;
+
 /**
  * A descriptor for a generic type.
  */
@@ -89,7 +91,26 @@ public class GenericType implements TypeDescriptor {
 		this.clazz = clazz;
 		this.params = paramTypes;
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return 13*clazz.hashCode() + 47*Arrays.hashCode(params);
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(clazz.getName());
+		sb.append('<');
+		sb.append(params[0].toString());
+		for(int index = 1; index < params.length; ++index) {
+			sb.append(',');
+			sb.append(params[index].toString());
+		}
+		sb.append('>');
+		return sb.toString();
+	}
+
 	@Override
 	public boolean isAssignableFrom(TypeDescriptor type) {
 		boolean ret = (type != null

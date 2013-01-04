@@ -42,7 +42,16 @@ public class ArrayType implements TypeDescriptor {
 			throw new NullPointerException("Class cannot be null");
 		this.clazz = clazz;
 	}
+
+	@Override
+	public int hashCode() {
+		return clazz.hashCode();
+	}
 	
+	@Override
+	public String toString() {
+		return clazz.getName() + "[]";
+	}
 
 	@Override
 	public boolean isAssignableFrom(TypeDescriptor type) {
