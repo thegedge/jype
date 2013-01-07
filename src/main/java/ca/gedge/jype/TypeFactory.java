@@ -21,6 +21,7 @@
  */
 package ca.gedge.jype;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -71,8 +72,12 @@ public class TypeFactory {
 	private static TypeDescriptor fromIterator(Iterator<Class<?>> iterator) {
 		final Class<?> clazz = iterator.next();
 		final TypeVariable<?> [] params = clazz.getTypeParameters();
-		if(params.length == 0)
-			return new SimpleType(clazz);
+		if(params.length == 0) {
+			if(clazz.isArray())
+				return new ArrayType(clazz.getComponentType());
+			else
+				return new SimpleType(clazz);
+		}
 		
 		final TypeDescriptor [] paramTypes = new TypeDescriptor[params.length];
 		for(int index = 0; index < paramTypes.length; ++index)

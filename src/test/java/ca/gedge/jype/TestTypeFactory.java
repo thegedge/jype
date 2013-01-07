@@ -26,6 +26,7 @@ package ca.gedge.jype;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,15 @@ public class TestTypeFactory {
 			);
 		} catch(IllegalArgumentException exc) {
 			fail("TypeFactory.fromList(List.class, String.class).toString()");
+		}
+
+		try {
+			assertEquals(
+			    "java.lang.String[]",
+			    TypeFactory.fromList(Array.newInstance(String.class, 0).getClass()).toString()
+			);
+		} catch(IllegalArgumentException exc) {
+			fail("TypeFactory.fromList(Array.class, String.class).toString()");
 		}
 
 		try {
