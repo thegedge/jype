@@ -23,7 +23,9 @@ package ca.gedge.jype;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -84,5 +86,66 @@ public class TypeFactory {
 			paramTypes[index] = fromIterator(iterator);
 		
 		return new GenericType(clazz, paramTypes);
+	}
+	
+	/** Non qualified types we will allow in {@link #parse(String)} */
+	private final static Hashtable<String, Class<?>> nonQualifiedTypes;
+	static {
+		nonQualifiedTypes = new Hashtable<String, Class<?>>();
+		nonQualifiedTypes.put("char", char.class);
+		nonQualifiedTypes.put("byte", byte.class);
+		nonQualifiedTypes.put("short", short.class);
+		nonQualifiedTypes.put("int", int.class);
+		nonQualifiedTypes.put("long", long.class);
+		nonQualifiedTypes.put("float", float.class);
+		nonQualifiedTypes.put("double", double.class);
+		nonQualifiedTypes.put("boolean", boolean.class);
+		nonQualifiedTypes.put("void", void.class);
+		nonQualifiedTypes.put("String", String.class);
+		nonQualifiedTypes.put("Object", Object.class);
+	}
+	
+	/**
+	 * Parse a {@link String} representation of a type. Similar to {@link Class#forName(String)},
+	 * but also parses generic and array types. Some example strings:
+	 * <ul>
+	 *   <li>int</li>
+	 *   <li>java.lang.String</li>
+	 *   <li>java.lang.Number[]</li>
+	 *   <li>java.util.List&lt;java.lang.String&gt;</li>
+	 *   <li>java.util.List&lt;?&gt;</li>
+	 *   <li>java.util.Map&lt;java.lang.Integer, java.util.TreeSet&lt;java.lang.Integer&gt;&gt;</li>
+	 * </ul>
+	 * 
+	 * @param typeString  string specification of a type to parse
+	 * 
+	 * @returns an applicable type descriptor
+	 * 
+	 * @throws IllegalArgumentException  if the given string is formatted incorrectly
+	 * @throws ClassNotFoundException  if any class in the given string is unknown
+	 */
+	public static TypeDescriptor parse(String typeString) throws ClassNotFoundException {
+		final String [] pieces = typeString.split("[<>,]");
+		final ArrayList<Class<?>> types = new ArrayList<Class<?>>();
+		for(String piece : pieces) {
+			piece = piece.trim();
+			
+			// Check for an array type
+			final boolean isArray = piece.endsWith("[]");
+			if(isArray)
+				piece = piece.substring(0, piece.length() - 2);
+			
+			// See if it's a known non-qualified type
+			Class<?> clazz = null;
+			if(nonQualifiedTypes.containsKey(piece)) {
+				clazz = nonQualifiedTypes.get(piece);
+			} else {
+				clazz = Class.forName(piece);
+			}
+			
+			types.add(isArray ? Array.newInstance(clazz, 0).getClass() : clazz);
+		}
+		
+		return fromIterator(types.iterator());
 	}
 }

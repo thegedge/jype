@@ -84,4 +84,24 @@ public class TestTypeFactory {
 	public void testFromListTooMany() {
 		TypeFactory.fromList(Map.class, String.class, Number.class, Integer.class);
 	}
+	
+	@Test
+	public void testParse() {
+		final String [] tests = new String[] {
+			"int",
+			"char[]",
+			"void",
+			"java.lang.String",
+			"java.util.List<java.lang.String>",
+			"java.util.Hashtable<java.lang.String,java.util.List<java.lang.Object>>"
+		};
+		
+		for(String test : tests) {
+			try {
+				assertEquals(test, TypeFactory.parse(test).toString());
+			} catch(Exception exc) {
+				fail("failed to parse \"" + test + "\"");
+			}
+		}
+	}
 }
