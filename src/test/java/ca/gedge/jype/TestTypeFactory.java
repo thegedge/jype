@@ -90,6 +90,7 @@ public class TestTypeFactory {
 		final String [] tests = new String[] {
 			"int",
 			"char[]",
+			"char[][][]",
 			"void",
 			"java.lang.String",
 			"java.util.List<java.lang.String>",

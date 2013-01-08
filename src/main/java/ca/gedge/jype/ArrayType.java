@@ -29,34 +29,63 @@ import java.lang.reflect.Array;
 public class ArrayType implements TypeDescriptor {
 	/** The array's type */
 	private Class<?> clazz;
-	
+
+	/** The number of dimensions */
+	private int numDims;
+
 	/**
-	 * Constructs an array type from a given {@link Class}.
+	 * Constructs a single dimension array type from a given {@link Class}.
 	 * 
 	 * @param clazz  the array's type
 	 * 
 	 * @throws NullPointerException  if the class is <code>null</code>
 	 */
 	public ArrayType(Class<?> clazz) {
+		this(clazz, 1);
+	}
+	
+	/**
+	 * Constructs an array type from a given {@link Class} with a specified
+	 * number of dimensions.
+	 * 
+	 * @param clazz  the array's type
+	 * @param numDims  the number of dimensions
+	 * 
+	 * @throws NullPointerException  if the class is <code>null</code>
+	 * @throws IllegalArgumentException  if numDims is non-positive
+	 */
+	public ArrayType(Class<?> clazz, int numDims) {
 		if(clazz == null)
 			throw new NullPointerException("Class cannot be null");
+
+		if(numDims < 1)
+			throw new IllegalArgumentException("Number of array dimensions must be at least 1");
+
 		this.clazz = clazz;
+		this.numDims = numDims;
 	}
 
 	@Override
 	public int hashCode() {
-		return clazz.hashCode();
+		return clazz.hashCode() + numDims;
 	}
 	
 	@Override
 	public String toString() {
-		return clazz.getName() + "[]";
+		if(numDims == 1)
+			return clazz.getName() + "[]";
+
+		final StringBuilder sb = new StringBuilder(clazz.getName());
+		for(int index = 0; index < numDims; ++index)
+			sb.append("[]");
+		return sb.toString();
 	}
 
 	@Override
 	public boolean isAssignableFrom(TypeDescriptor type) {
 		return (type != null
 		        && type instanceof ArrayType
-		        && clazz.isAssignableFrom( ((ArrayType)type).clazz ));
+		        && clazz.isAssignableFrom( ((ArrayType)type).clazz )
+		        && (numDims == ((ArrayType)type).numDims) );
 	}
 }

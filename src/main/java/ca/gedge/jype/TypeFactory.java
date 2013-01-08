@@ -75,10 +75,19 @@ public class TypeFactory {
 		final Class<?> clazz = iterator.next();
 		final TypeVariable<?> [] params = clazz.getTypeParameters();
 		if(params.length == 0) {
-			if(clazz.isArray())
-				return new ArrayType(clazz.getComponentType());
-			else
+			if(clazz.isArray()) {
+				// Find the number of dimensions and non-array component type
+				int numDims = 0;
+				Class<?> arrayClass = clazz;
+				while(arrayClass.isArray()) {
+					++numDims;
+					arrayClass = arrayClass.getComponentType();
+				}
+				
+				return new ArrayType(arrayClass, numDims);
+			} else {
 				return new SimpleType(clazz);
+			}
 		}
 		
 		final TypeDescriptor [] paramTypes = new TypeDescriptor[params.length];
@@ -129,12 +138,19 @@ public class TypeFactory {
 		final ArrayList<Class<?>> types = new ArrayList<Class<?>>();
 		for(String piece : pieces) {
 			piece = piece.trim();
-			
+
 			// Check for an array type
-			final boolean isArray = piece.endsWith("[]");
-			if(isArray)
-				piece = piece.substring(0, piece.length() - 2);
-			
+			int [] arrayDims = null;
+			if(piece.endsWith("[]")) {
+				int numArrayDims = 0;
+				while(piece.endsWith("[]")) {
+					++numArrayDims;
+					piece = piece.substring(0, piece.length() - 2);
+				}
+
+				arrayDims = new int[numArrayDims];
+			}
+
 			// See if it's a known non-qualified type
 			Class<?> clazz = null;
 			if(nonQualifiedTypes.containsKey(piece)) {
@@ -142,8 +158,8 @@ public class TypeFactory {
 			} else {
 				clazz = Class.forName(piece);
 			}
-			
-			types.add(isArray ? Array.newInstance(clazz, 0).getClass() : clazz);
+
+			types.add(arrayDims == null ? clazz : Array.newInstance(clazz, arrayDims).getClass());
 		}
 		
 		return fromIterator(types.iterator());

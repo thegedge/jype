@@ -64,6 +64,23 @@ public class TestTypeDescriptor {
 	}
 	
 	@Test
+	public void testArrayTypeMultipleDimensions() {
+		final ArrayType numberArray = new ArrayType(Number.class, 2);
+		final ArrayType integerArray = new ArrayType(Integer.class, 2);
+		final ArrayType doubleArray = new ArrayType(Double.class, 3);
+		
+		assertTrue(numberArray.isAssignableFrom(numberArray));
+		assertTrue(numberArray.isAssignableFrom(integerArray));
+		assertFalse(numberArray.isAssignableFrom(doubleArray));
+		assertFalse(integerArray.isAssignableFrom(numberArray));
+		assertFalse(integerArray.isAssignableFrom(doubleArray));
+		
+		assertEquals("java.lang.Number[][]", numberArray.toString());
+		assertEquals("java.lang.Integer[][]", integerArray.toString());
+		assertEquals("java.lang.Double[][][]", doubleArray.toString());
+	}
+	
+	@Test
 	public void testGenericTypeSingleParam() {
 		final GenericType l_n = new GenericType(List.class, Number.class);
 		final GenericType a_i = new GenericType(ArrayList.class, Integer.class);
