@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Factory methods for Jype.
@@ -114,6 +116,9 @@ public class TypeFactory {
 		nonQualifiedTypes.put("Object", Object.class);
 	}
 	
+	/** Pattern to match stringified types */
+	private static final Pattern p = Pattern.compile("([a-zA-Z][a-zA-Z0-9.]+)(?:(?:<(.+)>)|((?:\\[\\])+))?");
+	
 	/**
 	 * Parse a {@link String} representation of a type. Similar to {@link Class#forName(String)},
 	 * but also parses generic and array types. Some example strings:
@@ -134,34 +139,31 @@ public class TypeFactory {
 	 * @throws ClassNotFoundException  if any class in the given string is unknown
 	 */
 	public static TypeDescriptor parse(String typeString) throws ClassNotFoundException {
-		final String [] pieces = typeString.split("[<>,]");
-		final ArrayList<Class<?>> types = new ArrayList<Class<?>>();
-		for(String piece : pieces) {
-			piece = piece.trim();
-
-			// Check for an array type
-			int [] arrayDims = null;
-			if(piece.endsWith("[]")) {
-				int numArrayDims = 0;
-				while(piece.endsWith("[]")) {
-					++numArrayDims;
-					piece = piece.substring(0, piece.length() - 2);
-				}
-
-				arrayDims = new int[numArrayDims];
-			}
-
-			// See if it's a known non-qualified type
+		Matcher m = p.matcher(typeString.replaceAll("\\s", ""));
+		if(m.matches()) {
+			// Get the base type
 			Class<?> clazz = null;
-			if(nonQualifiedTypes.containsKey(piece)) {
-				clazz = nonQualifiedTypes.get(piece);
+			if(nonQualifiedTypes.containsKey(m.group(1))) {
+				clazz = nonQualifiedTypes.get(m.group(1));
 			} else {
-				clazz = Class.forName(piece);
+				clazz = Class.forName(m.group(1));
 			}
 
-			types.add(arrayDims == null ? clazz : Array.newInstance(clazz, arrayDims).getClass());
+			// Parse based on whether or not this is an array, generic type, or neither 
+			if(m.group(2) != null) {
+				final String [] paramStrings = m.group(2).split(",");
+				final TypeDescriptor [] params = new TypeDescriptor[paramStrings.length]; 
+				for(int index = 0; index < params.length; ++index)
+					params[index] = parse(paramStrings[index]);
+				
+				return new GenericType(clazz, params);
+			} else if(m.group(3) != null) {
+				return new ArrayType(clazz, m.group(3).length() / 2);
+			} else {
+				return new SimpleType(clazz);
+			}
 		}
-		
-		return fromIterator(types.iterator());
+
+		throw new IllegalArgumentException("Type string was in an illegal format: " + typeString);
 	}
 }

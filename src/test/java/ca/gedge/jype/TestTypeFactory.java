@@ -105,4 +105,33 @@ public class TestTypeFactory {
 			}
 		}
 	}
+	
+	@Test
+	public void testParseShorthand() {
+		try {
+			assertEquals("java.util.List<java.lang.String>", TypeFactory.parse("java.util.List<String>").toString());
+		} catch(Exception exc) {
+			fail("failed to parse \"java.util.List<java.lang.String>\"");
+		}
+	}
+	
+	@Test(expected=ClassNotFoundException.class)
+	public void testParseUnknownClass() throws ClassNotFoundException {
+		TypeFactory.parse("List<java.lang.String>");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testParseIncorrectFormat1() throws ClassNotFoundException {
+		TypeFactory.parse("java.util.List(java.lang.String)");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testParseIncorrectFormat2() throws ClassNotFoundException {
+		TypeFactory.parse("java.util.List<java.lang.String>[]");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testParseIncorrectFormat3() throws ClassNotFoundException {
+		TypeFactory.parse("int<java.lang.String>");
+	}
 }
